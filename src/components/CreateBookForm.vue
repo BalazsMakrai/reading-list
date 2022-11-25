@@ -13,20 +13,31 @@
 </template>
 
 <script>
-import { ref } from 'vue'
+import { db } from '../firebase/config';
+import { collection, addDoc } from '@firebase/firestore';
+import { ref } from 'vue';
 
 export default {
   setup() {
-    const title = ref('')
-    const author = ref('')
+    const title = ref('');
+    const author = ref('');
 
     const handleSubmit = async () => {
-      console.log(title.value, author.value)
-    }
+      const colRef = collection(db, 'books');
 
-    return { handleSubmit, title, author }
+      await addDoc(colRef, {
+        title: title.value,
+        author: author.value,
+        isFav: false
+      });
+
+      title.value = '';
+      author.value = '';
+    };
+
+    return { handleSubmit, title, author };
   }
-}
+};
 </script>
 
 <style>

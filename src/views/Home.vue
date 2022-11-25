@@ -3,7 +3,7 @@
     <ul>
       <li v-for="book in books" :key="book.id">
         <div class="details">
-          <h3>{{ book.title }}</h3>
+          <h3 @click="handleDelete(book)">{{ book.title }}</h3>
           <p>By {{ book.author }}</p>
         </div>
         <div class="icon">
@@ -16,27 +16,34 @@
 </template>
 
 <script>
-import { ref } from 'vue'
-import CreateBookForm from '@/components/CreateBookForm'
+
+import CreateBookForm from '@/components/CreateBookForm';
+import getCollection from '@/composables/getCollection';
+import { db } from '../firebase/config';
+import { doc, deleteDoc } from 'firebase/firestore';
 
 export default {
   name: 'Home',
   components: { CreateBookForm },
   setup() {
-    const books = ref([
-      { title: 'name of the wind', author: 'patrick rothfuss', isFav: false, id: '1' },
-      { title: 'the way of kings', author: 'brandon sanderson', isfav: false, id: '2' }
-    ])
-
-    return { books }
+    const { documents: books } = getCollection('books');
+    const handleDelete = (book) => {
+      const docRef = doc(db, 'books', book.id);
+      deleteDoc(docRef);
+    };
+    return {
+      books,
+      handleDelete
+    };
   }
-}
+};
 </script>
 
 <style>
 .home ul {
   padding: 0;
 }
+
 .home li {
   list-style-type: none;
   background: #fff;
@@ -45,20 +52,25 @@ export default {
   margin-bottom: 12px;
   display: flex;
 }
+
 .home li .details {
   margin-right: auto;
 }
+
 .home li h3 {
   margin: 0;
   margin-bottom: 4px;
 }
+
 .home li h3:hover {
   cursor: pointer;
   text-decoration: line-through;
 }
+
 .home li p {
   margin: 0;
 }
+
 .icon {
   color: #bbbbbb;
   cursor: pointer;

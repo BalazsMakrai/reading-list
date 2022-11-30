@@ -4,31 +4,44 @@
       <h1>My Book List</h1>
 
       <!-- for logged in users -->
-      <div>
+      <div v-if="user">
         <router-link to="/">Home</router-link>
         <button @click="handleClick">Logout</button>
       </div>
 
       <!-- for logged out users -->
-      <div>
+      <div v-else>
         <router-link to="/login">Login</router-link>
         <router-link to="/signup">Signup</router-link>
       </div>
     </nav>
+    <div v-if="user">Logged in as {{ user.email }}</div>
   </div>
 </template>
 
 <script>
 import { auth } from '../firebase/config';
 import { signOut } from 'firebase/auth';
+import getUser from '../composables/getUser';
+import { useRouter } from 'vue-router';
+import { watchEffect } from 'vue';
 
 export default {
   setup() {
+    const { user } = getUser();
+    const router = useRouter();
     const handleClick = () => {
       signOut(auth);
     };
+
+    watchEffect(() => {
+      if (!user.value) {
+        router.push('/login');
+      }
+    });
     return {
-      handleClick
+      handleClick,
+      user
     };
   }
 };
